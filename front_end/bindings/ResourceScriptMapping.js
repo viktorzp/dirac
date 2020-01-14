@@ -290,6 +290,13 @@ export class ResourceScriptFile extends Common.Object {
   }
 
   /**
+   * @return {?SDK.Script}
+   */
+  getScript() {
+    return this._script;
+  }
+
+  /**
    * @param {!Array.<!SDK.Script>} scripts
    * @return {boolean}
    */

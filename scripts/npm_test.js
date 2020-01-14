@@ -136,7 +136,7 @@ function getPlatform() {
 }
 
 function findMostRecentChromiumCommit() {
-  const commitMessage = shell(`git log --max-count=1 --grep="Cr-Commit-Position"`).toString().trim();
+  const commitMessage = shell(`git log --max-count=1 --grep="Cr-Commit-Position" --date=default --pretty=full`, {cwd: CHROMIUM_SRC_PATH}).toString().trim();
   const commitPosition = commitMessage.match(/Cr-Commit-Position: refs\/heads\/master@\{#([0-9]+)\}/)[1];
   return commitPosition;
 }

@@ -44,6 +44,15 @@
             match: found && found.ch == match.charAt(0), forward: dir > 0};
   }
 
+  // Parinfer edit:
+  // (we add style classes to closing brackets, so we ignore them here)
+  function bracketStylesMatch(a, b) {
+    var valid = function(x) { return x.indexOf("bracket") == 0; }
+    if (!a) {return false;}
+    if (!b) {return false;}
+    return (a == b || valid(a) && valid(b));
+  }
+
   // bracketRegex is used to specify which type of bracket to scan
   // should be a regexp, e.g. /[[\]]/
   //
@@ -67,7 +76,7 @@
       if (lineNo == where.line) pos = where.ch - (dir < 0 ? 1 : 0);
       for (; pos != end; pos += dir) {
         var ch = line.charAt(pos);
-        if (re.test(ch) && (style === undefined || cm.getTokenTypeAt(Pos(lineNo, pos + 1)) == style)) {
+        if (re.test(ch) && (style === undefined || bracketStylesMatch(cm.getTokenTypeAt(Pos(lineNo, pos + 1)), style))) {
           var match = matching[ch];
           if (match && (match.charAt(1) == ">") == (dir > 0)) stack.push(ch);
           else if (!stack.length) return {pos: Pos(lineNo, pos), ch: ch};
@@ -107,23 +116,20 @@
     }
   }
 
+  // Parinfer edit:
+  // (currentlyHighlighted should be local state if we want each editor to have their own highlighted brackets)
   function doMatchBrackets(cm) {
     cm.operation(function() {
-      if (cm.state.matchBrackets.currentlyHighlighted) {
-        cm.state.matchBrackets.currentlyHighlighted();
-        cm.state.matchBrackets.currentlyHighlighted = null;
-      }
-      cm.state.matchBrackets.currentlyHighlighted = matchBrackets(cm, false, cm.state.matchBrackets);
+      var state = cm.state.matchBrackets;
+      if (state.currentlyHighlighted) {state.currentlyHighlighted(); state.currentlyHighlighted = null;}
+      state.currentlyHighlighted = matchBrackets(cm, false, state);
     });
   }
 
   CodeMirror.defineOption("matchBrackets", false, function(cm, val, old) {
     if (old && old != CodeMirror.Init) {
       cm.off("cursorActivity", doMatchBrackets);
-      if (cm.state.matchBrackets && cm.state.matchBrackets.currentlyHighlighted) {
-        cm.state.matchBrackets.currentlyHighlighted();
-        cm.state.matchBrackets.currentlyHighlighted = null;
-      }
+      if (currentlyHighlighted) {currentlyHighlighted(); currentlyHighlighted = null;}
     }
     if (val) {
       cm.state.matchBrackets = typeof val == "object" ? val : {};

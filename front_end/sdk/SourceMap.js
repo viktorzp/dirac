@@ -90,6 +90,12 @@ export default class SourceMap {
 
   dispose() {
   }
+
+  /**
+   * @return {?SDK.SourceMapV3}
+   */
+  payload() {
+  }
 }
 
 /**
@@ -198,6 +204,7 @@ export class TextSourceMap {
       }
     }
 
+    this._payload = payload;
     this._json = payload;
     this._compiledURL = compiledURL;
     this._sourceMappingURL = sourceMappingURL;
@@ -267,6 +274,14 @@ export class TextSourceMap {
 
   /**
    * @override
+   * @return {?SDK.SourceMapV3}
+   */
+  payload() {
+    return this._payload;
+  }
+
+  /**
+   * @override
    * @return {!Array.<string>}
    */
   sourceURLs() {
@@ -323,7 +338,7 @@ export class TextSourceMap {
     const mappings = this._reversedMappings(sourceURL);
     const first = mappings.lowerBound(lineNumber, lineComparator);
     const last = mappings.upperBound(lineNumber, lineComparator);
-    if (first >= mappings.length || mappings[first].sourceLineNumber !== lineNumber) {
+    if (first >= mappings.length || mappings[first].sourceLineNumber !==lineNumber ) {
       return null;
     }
     const columnMappings = mappings.slice(first, last);
@@ -679,6 +694,14 @@ export class WasmSourceMap {
    */
   url() {
     return WasmSourceMap.FAKE_URL;
+  }
+
+  /**
+   * @override
+   * @return {?SDK.SourceMapV3}
+   */
+  payload() {
+    return null;
   }
 
   /**

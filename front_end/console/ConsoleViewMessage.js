@@ -871,6 +871,13 @@ export class ConsoleViewMessage {
       }
     }
 
+    function rawFormatter(obj) {
+      const rawElement = createElement('div');
+      rawElement.setAttribute('class', 'raw-console-output');
+      rawElement.innerHTML = obj.description || '';
+      return rawElement;
+    }
+
     function isWhitelistedProperty(property) {
       // Make sure that allowed properties do not interfere with link visibility.
       const prefixes = [
@@ -900,6 +907,8 @@ export class ConsoleViewMessage {
     formatters.O = parameterFormatter.bind(this, true /* force */, false /* includePreview */);
 
     formatters._ = bypassFormatter;
+
+    formatters.r = rawFormatter;
 
     /**
      * @param {!Element} a

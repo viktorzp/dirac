@@ -625,6 +625,7 @@ export class Linkifier {
     }
     if (contentProvider) {
       const lineNumber = uiLocation ? uiLocation.lineNumber : info.lineNumber || 0;
+      const columnNumber = uiLocation ? uiLocation.columnNumber : info.columnNumber || 0;
       for (const title of _linkHandlers.keys()) {
         const handler = _linkHandlers.get(title);
         const action = {
@@ -636,6 +637,15 @@ export class Linkifier {
           result.unshift(action);
         } else {
           result.push(action);
+        }
+      }
+      if (dirac.hasLinkActions) {
+        const diracAction = Components.Linkifier.diracLinkHandlerAction;
+        if (diracAction) {
+          result.unshift({
+            title: diracAction.title,
+            handler: diracAction.handler.bind(null, result, contentProvider.contentURL(), lineNumber, columnNumber)
+          });
         }
       }
     }
